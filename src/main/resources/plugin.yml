@@ -1,0 +1,6 @@
+name: Gate Keeper
+version: '${project.version}'
+main: com.rrayy.gatekeeper.gatekeeper
+api-version: '1.21'
+description: A Management Paper Plugin for Gate Proxy
+author: rrayy
