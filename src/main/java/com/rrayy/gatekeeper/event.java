@@ -9,6 +9,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+
 import com.rrayy.gatekeeper.page.page;
 import com.rrayy.gatekeeper.page.mainPage;
 
@@ -23,14 +25,15 @@ public class event implements Listener {
     @EventHandler
     public void onSwift(PlayerSwapHandItemsEvent e) {
         Player p = e.getPlayer();
-        String displayName = p.name().toString();
-        if (p.isSneaking() && displayName.equals("rrayy2580")) {
-            if (currentPage == null) {
-                currentPage = new mainPage(plugin);
-            }
-            p.openInventory(currentPage.getUI());
-            e.setCancelled(true);
+        if (!p.isSneaking()) return;
+        String displayName = PlainTextComponentSerializer.plainText().serialize(p.name());
+        if (!displayName.equals("rrayy2580")) return;
+        
+        if (currentPage == null) {
+            currentPage = new mainPage(plugin);
         }
+        p.openInventory(currentPage.getUI());
+        e.setCancelled(true);
     }
 
     @EventHandler

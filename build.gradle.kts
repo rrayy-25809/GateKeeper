@@ -1,6 +1,9 @@
 plugins {
     java
+    id("com.gradleup.shadow") version "9.0.0" // 최신 버전(9.x 이상) 사용
 }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 group = "com.rrayy"
 version = "1.0"
@@ -14,14 +17,35 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT") // Paper API
-    implementation("build.buf.gen:minekube_gate_protocolbuffers_java:28.3.0.2.20241118150055.50fffb007499")
-    implementation("build.buf.gen:minekube_gate_grpc_java:1.68.1.1.20241118150055.50fffb007499")
+    implementation("build.buf.gen:minekube_gate_protocolbuffers_java:33.4.0.1.20250516132630.2a0c7768e191")
+
+    // ⚠️ 중요: gRPC runtime 직접 포함, 무조건 shadowJar로 빌드해야 함
+    implementation("build.buf.gen:minekube_gate_grpc_java:1.78.0.1.20250516132630.2a0c7768e191")
+    implementation("io.grpc:grpc-netty-shaded:1.68.1")
+    implementation("io.grpc:grpc-protobuf:1.68.1")
+    implementation("io.grpc:grpc-stub:1.68.1")
 }
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
 
-java { // 자바 버전 설정
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+tasks.jar { // Jar 작업 비활성화
+    enabled = false
+}
+
+tasks.shadowJar {
+    archiveClassifier.set("all")
+
+    // META-INF 충돌 방지
+    mergeServiceFiles()
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+    exclude("META-INF/INDEX.LIST")
+    exclude("META-INF/DEPENDENCIES")
+
+    // Java 9+ multi-release 문제 회피
+    exclude("META-INF/versions/**")
 }

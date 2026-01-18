@@ -13,14 +13,15 @@ public class gatekeeper extends JavaPlugin {
 
     @Override
     public void onEnable() { // Plugin startup logic
-        getServer().getPluginManager().registerEvents(new event(this), this);
         try {
             channel = ManagedChannelBuilder // Create a gRPC channel
-                .forAddress("localhost", 8080)
-                .usePlaintext()
-                .build();
-
+            .forAddress("127.0.0.1", 8080)
+            .usePlaintext()
+            .build();
+            
             stub = GateServiceGrpc.newBlockingStub(channel);    // Create a blocking stub
+            getServer().getPluginManager().registerEvents(new event(this), this);
+            getLogger().info("GateKeeper Plugin has been enabled!");
         } catch (Exception e) {
             getLogger().severe("Make sure Gate is running with the API enabled");
             e.printStackTrace();
@@ -30,6 +31,6 @@ public class gatekeeper extends JavaPlugin {
     @Override
     public void onDisable() {
         channel.shutdown(); // Shutdown the channel
-        getLogger().info("TPA Plugin has been disabled!");
+        getLogger().info("GateKeeper Plugin has been disabled!");
     }
 }
