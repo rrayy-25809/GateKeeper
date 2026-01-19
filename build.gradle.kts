@@ -35,6 +35,19 @@ tasks.jar { // Jar 작업 비활성화
 }
 
 tasks.shadowJar {
+    relocate(
+        "com.google.protobuf",
+        "com.rrayy.gatekeeper.shadow.protobuf"
+    )
+    relocate(
+        "io.grpc",
+        "com.rrayy.gatekeeper.shadow.grpc"
+    )
+    relocate(
+        "build.buf.gen.minekube",
+        "com.rrayy.gatekeeper.shadow.minekube"
+    )
+
     archiveClassifier.set("all")
 
     // META-INF 충돌 방지

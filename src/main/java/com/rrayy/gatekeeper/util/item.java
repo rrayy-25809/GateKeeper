@@ -3,6 +3,9 @@ package com.rrayy.gatekeeper.util;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+
+import com.destroystokyo.paper.profile.PlayerProfile;
 
 import net.kyori.adventure.text.Component;
 
@@ -22,5 +25,14 @@ public class item {
         meta.lore(java.util.Arrays.asList(lore));
         item.setItemMeta(meta);
         return item;
+    }
+
+    public static ItemStack createPlayerHead(PlayerProfile profile, Component name) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        meta.setPlayerProfile(profile);
+        meta.displayName(name);
+        head.setItemMeta(meta);
+        return head;
     }
 }

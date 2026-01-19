@@ -9,6 +9,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import com.rrayy.gatekeeper.page.page;
@@ -64,11 +65,11 @@ public class event implements Listener {
         // 열려 있는 뷰가 없으면 제목을 알 수 없음
         if (inventory.getViewers().isEmpty()) return false;
 
-        String title = inventory.getViewers()
-                .get(0)       // 첫 번째 플레이어
-                .getOpenInventory() // 현재 열려 있는 인벤토리
-                .title()            // 제목 Component
-                .toString();        // 문자열로 변환
+        Component titleComponent = inventory.getViewers()
+            .get(0)       // 첫 번째 플레이어
+            .getOpenInventory() // 현재 열려 있는 인벤토리
+            .title();           // 제목 Component
+        String title = PlainTextComponentSerializer.plainText().serialize(titleComponent);
 
         return title != null && title.contains("Page");
     }

@@ -11,6 +11,10 @@ import com.rrayy.gatekeeper.gatekeeper;
 import com.rrayy.gatekeeper.util.item;
 import com.rrayy.gatekeeper.util.sort;
 
+import build.buf.gen.minekube.gate.v1.GetPlayerRequest;
+import build.buf.gen.minekube.gate.v1.GetPlayerResponse;
+
+
 import net.kyori.adventure.text.Component;
 
 public class mainPage implements page {
@@ -46,11 +50,16 @@ public class mainPage implements page {
         player.closeInventory();
         switch (material) {
             case AXOLOTL_SPAWN_EGG:
-                serverTransferPage server_page = new serverTransferPage(plugin, player);
+                GetPlayerResponse response = plugin.stub.getPlayer(GetPlayerRequest.newBuilder()
+                    .setId(player.getUniqueId().toString())
+                    .setUsername(player.getName())
+                    .build()
+                );
+                serverTransferPage server_page = new serverTransferPage(plugin, response.getPlayer());
                 player.openInventory(server_page.getUI());
                 return server_page;
             case SHIELD:
-                playerManagePage manage_page = new playerManagePage(plugin);
+                playerListPage manage_page = new playerListPage(plugin);
                 player.openInventory(manage_page.getUI());
                 return manage_page;
             case RECOVERY_COMPASS:
