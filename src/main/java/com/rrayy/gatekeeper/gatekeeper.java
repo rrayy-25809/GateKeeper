@@ -9,7 +9,7 @@ import io.grpc.ManagedChannel;
 
 public class gatekeeper extends JavaPlugin {
     private ManagedChannel channel;
-    public GateServiceGrpc.GateServiceBlockingStub stub;
+    public GateServiceGrpc.GateServiceStub stub;
 
     @Override
     public void onEnable() { // Plugin startup logic
@@ -19,7 +19,7 @@ public class gatekeeper extends JavaPlugin {
             .usePlaintext()
             .build();
             
-            stub = GateServiceGrpc.newBlockingStub(channel);    // Create a blocking stub
+            stub = GateServiceGrpc.newStub(channel);
             getServer().getPluginManager().registerEvents(new event(this), this);
             getLogger().info("GateKeeper Plugin has been enabled!");
         } catch (Exception e) {

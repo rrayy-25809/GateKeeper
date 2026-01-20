@@ -17,7 +17,7 @@ import build.buf.gen.minekube.gate.v1.GetPlayerRequest;
 import build.buf.gen.minekube.gate.v1.GetPlayerResponse;
 import build.buf.gen.minekube.gate.v1.ListPlayersRequest;
 import build.buf.gen.minekube.gate.v1.ListPlayersResponse;
-
+import io.grpc.stub.StreamObserver;
 import net.kyori.adventure.text.Component;
 
 public class playerListPage implements page {
@@ -30,22 +30,37 @@ public class playerListPage implements page {
         this.ui = plugin.getServer().createInventory(null, 9, title);
 
         ArrayList<ItemStack> items = new ArrayList<>();
-        ListPlayersResponse response = plugin.stub.listPlayers(ListPlayersRequest.getDefaultInstance()); // gRPC 호출 to get server list
-        response.getPlayersList().forEach(player -> {
-            // The most modern and reliable way using Paper's PlayerProfile API
-            PlayerProfile profile = this.plugin.getServer().createProfile(UUID.fromString(player.getId()));
-            items.add(item.createPlayerHead(profile, Component.text(player.getUsername())));
-        });
+        plugin.stub.listPlayers(ListPlayersRequest.getDefaultInstance(), new StreamObserver<ListPlayersResponse>() {
 
-        ArrayList<Integer> sortedItems = sort.itemSort(items.size()); // 아이템 위치 찾기
-        int index = 0;
-
-        for (Integer integer : sortedItems) { // 찾은 위치에 아이템 배치
-            if (integer != null && integer >= 0 && integer < items.size()) {
-                this.ui.setItem(index, items.get(integer));
+            @Override
+            public void onNext(ListPlayersResponse response) {
+                response.getPlayersList().forEach(player -> {
+                    // The most modern and reliable way using Paper's PlayerProfile API
+                    PlayerProfile profile = plugin.getServer().createProfile(UUID.fromString(player.getId()));
+                    items.add(item.createPlayerHead(profile, Component.text(player.getUsername())));
+                });
             }
-            index++;
-        }
+
+            @Override
+            public void onError(Throwable t) {
+                plugin.getLogger().warning("유저 정보를 가져오는 중에 문제가 발생했습니다.");
+                t.printStackTrace();
+            }
+
+            @Override
+            public void onCompleted() {
+                ArrayList<Integer> sortedItems = sort.itemSort(items.size()); // 아이템 위치 찾기
+                int index = 0;
+
+                for (Integer integer : sortedItems) { // 찾은 위치에 아이템 배치
+                    if (integer != null && integer >= 0 && integer < items.size()) {
+                        ui.setItem(index, items.get(integer));
+                    }
+                    index++;
+                }
+            }
+            
+        }); // gRPC 호출 to get server list
     }
 
     @Override
@@ -57,10 +72,24 @@ public class playerListPage implements page {
         GetPlayerRequest request = GetPlayerRequest.newBuilder()
             .setId(meta.getPlayerProfile().getId().toString())
             .build();
-        GetPlayerResponse response = this.plugin.stub.getPlayer(request);
-        playerManagePage manage_page = new playerManagePage(this.plugin, response.getPlayer());
-        player.openInventory(manage_page.getUI());
-        return manage_page;
+        final playerManagePage[] manage_page = new playerManagePage[1];
+        plugin.stub.getPlayer(request, new StreamObserver<GetPlayerResponse>() {
+            @Override
+            public void onNext(GetPlayerResponse response) {
+                manage_page[0] = new playerManagePage(plugin, response.getPlayer());
+                player.openInventory(manage_page[0].getUI());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+            }
+
+            @Override
+            public void onCompleted() {
+            }
+
+        });
+        return manage_page[0];
     }
 
     @Override

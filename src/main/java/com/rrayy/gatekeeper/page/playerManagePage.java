@@ -39,7 +39,7 @@ public class playerManagePage implements page {
                     .setReason("by "+player.getName())
                     .build();
                 try {
-                    this.plugin.stub.disconnectPlayer(request);
+                    this.plugin.stub.disconnectPlayer(request, null);
                     this.plugin.getLogger().info("플레이어, "+player.getName()+"에 의해 "+this.player.getUsername()+"이 추방되었습니다.");
                 } catch (Exception e) {
                     this.plugin.getLogger().warning("플레이어, "+player.getName()+"에 의해 "+this.player.getUsername()+"이 추방되는 중에 문제가 발생했습니다.");
